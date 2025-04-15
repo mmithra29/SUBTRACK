@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Invoices</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>Past Invoices</h2>
+    <ul id="invoiceList"></ul>
+  </div>
+  <script>
+    fetch("http://localhost:5000/invoices?user_id=1")
+      .then(res => res.json())
+      .then(data => {
+        const list = document.getElementById("invoiceList");
+        data.forEach(inv => {
+          const item = document.createElement("li");
+          item.innerHTML = `
+            ${inv.plan} - ₹${inv.amount} on ${inv.paid_on}
+            <a href="/download-invoice/${inv.id}" target="_blank">Download</a>
+          `;
+          list.appendChild(item);
+        });
+      });
+  </script>
+</body>
+</html>

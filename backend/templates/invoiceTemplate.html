@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial, sans-serif; }
+    .invoice { border: 1px solid #eee; padding: 20px; margin: 20px; }
+  </style>
+</head>
+<body>
+  <div class="invoice">
+    <h1>Invoice</h1>
+    <p><strong>Name:</strong> <%= user_name %></p>
+    <p><strong>Email:</strong> <%= email %></p>
+    <p><strong>Plan:</strong> <%= plan %></p>
+    <p><strong>Amount:</strong> ₹<%= amount %></p>
+    <p><strong>Date:</strong> <%= payment_date %></p>
+    <p><strong>Status:</strong> <%= status %></p>
+  </div>
+</body>
+</html>
