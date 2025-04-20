@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Payment - SUB-TRACK</title>
+    <link rel="stylesheet" href="styles/payment.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="payment-container">
+        <div class="payment-header">
+            <div class="secure-badge">
+                <i class="fas fa-lock"></i> Secure Payment
+            </div>
+            <div class="steps">
+                <div class="step active">
+                    <div class="step-number">1</div>
+                    <div class="step-text">Payment</div>
+                </div>
+                <div class="step-line"></div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-text">Confirmation</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="payment-content">
+            <div class="payment-summary">
+                <h2>Payment Summary</h2>
+                <div class="service-details">
+                    <img id="serviceLogo" src="" alt="Service Logo" class="service-logo">
+                    <div class="service-info">
+                        <h3 id="serviceName">Loading...</h3>
+                        <p id="planDetails">Loading...</p>
+                    </div>
+                </div>
+                <div class="amount-details">
+                    <div class="amount-row">
+                        <span>Subscription Amount</span>
+                        <span id="subAmount">₹0.00</span>
+                    </div>
+                    <div class="amount-row">
+                        <span>Tax (18% GST)</span>
+                        <span id="taxAmount">₹0.00</span>
+                    </div>
+                    <div class="amount-row total">
+                        <span>Total Amount</span>
+                        <span id="totalAmount">₹0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="payment-section">
+                <div class="payment-methods">
+                    <button type="button" class="method-btn active" data-method="card">
+                        <i class="fas fa-credit-card"></i> Card
+                    </button>
+                    <button type="button" class="method-btn" data-method="upi">
+                        <i class="fas fa-mobile-alt"></i> UPI
+                    </button>
+                    <button type="button" class="method-btn" data-method="netbanking">
+                        <i class="fas fa-university"></i> Net Banking
+                    </button>
+                </div>
+
+                <!-- Card Payment Section -->
+                <div id="cardPaymentSection" class="payment-method-section">
+                    <div class="form-group">
+                        <label>Card Number</label>
+                        <div class="card-input-wrapper">
+                            <input type="text" id="cardNumber" placeholder="4242 4242 4242 4242" maxlength="19">
+                            <div class="card-icons">
+                                <i class="fab fa-cc-visa"></i>
+                                <i class="fab fa-cc-mastercard"></i>
+                                <i class="fab fa-cc-amex"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Expiry Date</label>
+                            <input type="text" id="expiryDate" placeholder="MM/YY" maxlength="5">
+                        </div>
+                        <div class="form-group">
+                            <label>CVV</label>
+                            <input type="password" id="cvv" placeholder="123" maxlength="3">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Name on Card</label>
+                        <input type="text" id="cardName" placeholder="John Doe">
+                    </div>
+                </div>
+
+                <!-- UPI Payment Section -->
+                <div id="upiPaymentSection" class="payment-method-section hidden">
+                    <div class="form-group">
+                        <label>UPI ID</label>
+                        <input type="text" id="upiId" placeholder="username@upi">
+                    </div>
+                </div>
+
+                <!-- Net Banking Payment Section -->
+                <div id="netbankingSection" class="payment-method-section hidden">
+                    <div class="form-group">
+                        <label>Select Bank</label>
+                        <select id="bankSelect">
+                            <option value="">Select your bank</option>
+                            <option value="sbi">State Bank of India</option>
+                            <option value="hdfc">HDFC Bank</option>
+                            <option value="icici">ICICI Bank</option>
+                            <option value="axis">Axis Bank</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Common Pay Button for all methods -->
+                <button type="button" id="payButton" class="pay-button">
+                    <span id="buttonAmount">Pay ₹0.00</span>
+                    <i class="fas fa-lock"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="payment-footer">
+            <div class="secure-info">
+                <i class="fas fa-shield-alt"></i>
+                Your payment is secured with industry-standard encryption
+            </div>
+            <div class="powered-by">
+                Powered by <span class="stripe-text">stripe</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loader"></div>
+        <p>Processing your payment...</p>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/payment.js"></script>
+</body>
+</html> 

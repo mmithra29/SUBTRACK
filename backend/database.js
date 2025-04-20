@@ -9,6 +9,12 @@ if (!fs.existsSync(dbDir)) {
 }
 
 const dbPath = path.join(dbDir, "data.db");
+
+// Delete existing database if it exists
+if (fs.existsSync(dbPath)) {
+    fs.unlinkSync(dbPath);
+}
+
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
         console.error("Error opening database:", err);
@@ -18,40 +24,52 @@ const db = new sqlite3.Database(dbPath, (err) => {
 });
 
 db.serialize(() => {
-  db.run(`
-    CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      email TEXT UNIQUE NOT NULL,
-      password TEXT NOT NULL
-    );
-  `, (err) => {
-    if (err) console.error("Error creating users table:", err);
-  });
+    // Users table
+    db.run(`
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL
+        );
+    `, (err) => {
+        if (err) console.error("Error creating users table:", err);
+        else console.log("Users table created successfully");
+    });
 
-  db.run(`
-    CREATE TABLE IF NOT EXISTS subscriptions (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER,
-      plan TEXT,
-      amount REAL,
-      status TEXT DEFAULT 'active',
-      start_date TEXT,
-      renew_date TEXT,
-      FOREIGN KEY(user_id) REFERENCES users(id)
-    );
-  `);
+    // Subscriptions table
+    db.run(`
+        CREATE TABLE IF NOT EXISTS subscriptions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            service TEXT NOT NULL,
+            plan TEXT,
+            amount REAL,
+            status TEXT DEFAULT 'active',
+            start_date TEXT,
+            renew_date TEXT,
+            FOREIGN KEY(user_id) REFERENCES users(id)
+        );
+    `, (err) => {
+        if (err) console.error("Error creating subscriptions table:", err);
+        else console.log("Subscriptions table created successfully");
+    });
 
-  db.run(`
-    CREATE TABLE IF NOT EXISTS payments (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER,
-      plan TEXT,
-      amount REAL,
-      paid_on TEXT,
-      FOREIGN KEY(user_id) REFERENCES users(id)
-    );
-  `);
+    // Payments table
+    db.run(`
+        CREATE TABLE IF NOT EXISTS payments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            service TEXT,
+            plan TEXT,
+            amount REAL,
+            paid_on TEXT,
+            FOREIGN KEY(user_id) REFERENCES users(id)
+        );
+    `, (err) => {
+        if (err) console.error("Error creating payments table:", err);
+        else console.log("Payments table created successfully");
+    });
 });
 
 module.exports = db;

@@ -1,5 +1,5 @@
 // API endpoints
-const API_URL = 'http://localhost:5000';
+const API_URL = 'http://localhost:5000/api';
 
 // Check if user is logged in
 function checkAuth() {
@@ -37,7 +37,7 @@ document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
             localStorage.setItem('userName', data.name);
             window.location.href = 'dashboard.html';
         } else {
-            alert(data.message || 'Login failed');
+            alert(data.error || 'Login failed');
         }
     } catch (error) {
         console.error('Error:', error);
@@ -46,25 +46,44 @@ document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
 });
 
 // Handle signup form submission
-document.getElementById('signupForm')?.addEventListener('submit', async (e) => {
+document.getElementById('signupForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    console.log('Signup form submitted');
     
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email').value;
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
 
-    console.log('Form data:', { name, email, password: '***' });
+    // Clear previous error messages
+    document.getElementById('errorMsg').textContent = '';
 
+    // Validate inputs
+    if (!name || !email || !password || !confirmPassword) {
+        document.getElementById('errorMsg').textContent = 'All fields are required';
+        return;
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        document.getElementById('errorMsg').textContent = 'Please enter a valid email address';
+        return;
+    }
+
+    // Validate password length
+    if (password.length < 6) {
+        document.getElementById('errorMsg').textContent = 'Password must be at least 6 characters long';
+        return;
+    }
+
+    // Validate password match
     if (password !== confirmPassword) {
-        alert('Passwords do not match');
+        document.getElementById('errorMsg').textContent = 'Passwords do not match';
         return;
     }
 
     try {
-        console.log('Making API request to:', `${API_URL}/signup`);
-        const response = await fetch(`${API_URL}/signup`, {
+        const response = await fetch(`${window.API_BASE_URL}/api/signup`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -72,19 +91,19 @@ document.getElementById('signupForm')?.addEventListener('submit', async (e) => {
             body: JSON.stringify({ name, email, password })
         });
 
-        console.log('Response status:', response.status);
         const data = await response.json();
-        console.log('Signup response:', data);
-        
+
         if (response.ok) {
+            // Signup successful
             alert('Signup successful! Please login.');
             window.location.href = 'index.html';
         } else {
-            alert(data.error || 'Signup failed');
+            // Show error message from server
+            document.getElementById('errorMsg').textContent = data.error || 'Signup failed';
         }
     } catch (error) {
         console.error('Error during signup:', error);
-        alert('An error occurred during signup');
+        document.getElementById('errorMsg').textContent = 'An error occurred during signup. Please try again.';
     }
 });
 
@@ -95,64 +114,59 @@ document.getElementById('logoutBtn')?.addEventListener('click', () => {
     window.location.href = 'index.html';
 });
 
-// Handle subscription form submission
-document.getElementById('subscribeForm')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    console.log('Subscription form submitted');
-    
-    const plan = document.getElementById('plan').value;
+// Load user's subscriptions
+async function loadSubscriptions() {
     const token = localStorage.getItem('token');
-    
-    console.log('Selected plan:', plan);
-    console.log('Token exists:', !!token);
-    
-    if (!token) {
-        alert('Please login first');
-        window.location.href = 'index.html';
-        return;
-    }
-
-    const amount = getPlanAmount(plan);
-    console.log('Calculated amount:', amount);
+    if (!token) return;
 
     try {
-        console.log('Making subscription request to:', `${API_URL}/subscribe`);
-        const response = await fetch(`${API_URL}/subscribe`, {
-            method: 'POST',
+        const response = await fetch(`${API_URL}/subscriptions`, {
             headers: {
-                'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ 
-                plan,
-                amount
-            })
+            }
         });
 
-        console.log('Subscription response status:', response.status);
-        const data = await response.json();
-        console.log('Subscription response:', data);
-        
         if (response.ok) {
-            alert('Subscription successful!');
-            loadInvoices(); // Refresh invoices list
-        } else {
-            alert(data.error || 'Subscription failed');
+            const subscriptions = await response.json();
+            displaySubscriptions(subscriptions);
         }
     } catch (error) {
-        console.error('Error during subscription:', error);
-        alert('An error occurred during subscription');
+        console.error('Error loading subscriptions:', error);
     }
-});
+}
 
-// Helper function to get plan amount
-function getPlanAmount(plan) {
-    switch (plan) {
-        case 'basic': return 9.99;
-        case 'premium': return 19.99;
-        case 'enterprise': return 49.99;
-        default: return 0;
-    }
+// Display subscriptions in the UI
+function displaySubscriptions(subscriptions) {
+    const subscriptionGrid = document.querySelector('.subscription-grid');
+    if (!subscriptionGrid) return;
+
+    const services = {
+        netflix: {
+            name: 'Netflix',
+            logo: 'images/netflix-logo.png'
+        },
+        disney: {
+            name: 'Disney+ Hotstar',
+            logo: 'images/disney-logo.png'
+        }
+    };
+
+    Object.entries(services).forEach(([service, info]) => {
+        const subscription = subscriptions.find(s => s.service === service);
+        const status = subscription ? subscription.status : 'inactive';
+        
+        const card = document.createElement('div');
+        card.className = 'subscription-card';
+        card.onclick = () => location.href = `subscription-details.html?service=${service}`;
+        
+        card.innerHTML = `
+            <img src="${info.logo}" alt="${info.name}">
+            <h3>${info.name}</h3>
+            <span class="status ${status}">${status}</span>
+        `;
+        
+        subscriptionGrid.appendChild(card);
+    });
 }
 
 // Load user's invoices
@@ -188,15 +202,20 @@ function displayInvoices(invoices) {
 
     invoicesList.innerHTML = invoices.map(invoice => `
         <div class="invoice-item">
-            <p>Plan: ${invoice.plan}</p>
-            <p>Amount: $${invoice.amount}</p>
-            <p>Date: ${new Date(invoice.paid_on).toLocaleDateString()}</p>
-            <a href="${API_URL}/download-invoice/${invoice.id}" class="btn">Download Invoice</a>
+            <div class="invoice-details">
+                <p class="service">${invoice.service}</p>
+                <p class="plan">${invoice.plan}</p>
+                <p class="amount">₹${invoice.amount}</p>
+                <p class="date">${new Date(invoice.paid_on).toLocaleDateString()}</p>
+            </div>
+            <a href="${API_URL}/download-invoice/${invoice.id}" class="download-btn">
+                <i class="fas fa-download"></i> Download
+            </a>
         </div>
     `).join('');
 }
 
-// Load invoices when dashboard loads
+// Initialize dashboard
 document.addEventListener('DOMContentLoaded', () => {
     checkAuth();
     const userNameElement = document.getElementById('userName');
@@ -206,5 +225,6 @@ document.addEventListener('DOMContentLoaded', () => {
             userNameElement.textContent = `Welcome, ${userName}`;
         }
     }
-    loadInvoices(); // Load invoices on dashboard load
+    loadSubscriptions();
+    loadInvoices();
 }); 

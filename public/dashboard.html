@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SUB-TRACK - Dashboard</title>
     <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <div class="dashboard-container">
@@ -12,16 +13,30 @@
             <h1 class="title">SUB-TRACK</h1>
             <div class="user-info">
                 <p id="userName">Welcome, User</p>
-                <button id="logoutBtn" class="btn">Logout</button>
+                <button id="logoutBtn">Logout</button>
             </div>
         </nav>
         <main class="main-content">
-            <h2>Dashboard</h2>
-            <div class="dashboard-content">
-                <p>Welcome to your SUB-TRACK dashboard!</p>
+            <h2>Available Subscriptions</h2>
+            <div class="subscription-grid" id="subscriptionGrid">
+                <!-- Service cards will be added here by JavaScript -->
+            </div>
+            
+            <h2>Your Active Subscriptions</h2>
+            <div class="subscription-grid" id="activeSubscriptions">
+                <!-- Active subscriptions will be added here -->
+            </div>
+
+            <div class="recent-invoices">
+                <h2>Recent Invoices</h2>
+                <div id="invoicesList">
+                    <!-- Invoices will be added here -->
+                </div>
             </div>
         </main>
     </div>
-    <script src="js/signup.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/services-config.js"></script>
+    <script src="js/dashboard.js"></script>
 </body>
 </html> 

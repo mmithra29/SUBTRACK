@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful - SUB-TRACK</title>
+    <link rel="stylesheet" href="styles/payment.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="payment-container">
+        <div class="payment-success">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h1>Payment Successful!</h1>
+            <p>Your subscription has been activated successfully.</p>
+            <div class="invoice-download">
+                <p>Invoice #<span id="invoiceNumber">Loading...</span></p>
+                <button onclick="downloadInvoice()" class="download-btn">
+                    <i class="fas fa-download"></i> Download Invoice
+                </button>
+            </div>
+            <a href="dashboard.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+    <script src="js/config.js"></script>
+    <script>
+        let invoiceId;
+
+        async function downloadInvoice() {
+            const token = localStorage.getItem('token');
+            if (!token || !invoiceId) {
+                alert('Unable to download invoice. Please try again from the dashboard.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${window.API_BASE_URL}/api/download-invoice/${invoiceId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `invoice_${invoiceId}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    a.remove();
+                } else {
+                    throw new Error('Failed to download invoice');
+                }
+            } catch (error) {
+                console.error('Error downloading invoice:', error);
+                alert('Failed to download invoice. Please try again.');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            invoiceId = urlParams.get('invoice');
+            
+            if (invoiceId) {
+                document.getElementById('invoiceNumber').textContent = invoiceId;
+            }
+        });
+    </script>
+</body>
+</html> 
